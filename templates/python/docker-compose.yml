@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
+    container_name: ${APP_NAME:-pyapp}-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:${APP_PORT:-8000}"
+    volumes:
+      - ./:/app
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-devdb}
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-root}
+    # Django (bawaan) atau FastAPI — lihat .env
+    command: sh -c "${APP_COMMAND:-python manage.py runserver 0.0.0.0:8000}"
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    external: true
+    name: devnet
