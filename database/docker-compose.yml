@@ -1,0 +1,43 @@
+services:
+  db:
+    image: mariadb:${DB_VERSION:-11.4}
+    container_name: ${DB_CONTAINER:-devnet-db}
+    restart: unless-stopped
+
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-devdb}
+      MARIADB_USER: ${DB_USER:-dev}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-dev}
+      TZ: Asia/Jakarta
+
+    # kiri = port di Windows (untuk Navicat), kanan = port di dalam container
+    ports:
+      - "${DB_PORT_HOST:-3307}:3306"
+
+    volumes:
+      # data database, tetap ada meski container dihapus
+      - dbdata:/var/lib/mysql
+      # konfigurasi tambahan
+      - ./config/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+      # file .sql di folder ini diimport otomatis saat database pertama kali dibuat
+      - ./initdb:/docker-entrypoint-initdb.d
+
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    # network sudah dibuat manual: docker network create devnet
+    external: true
+    name: devnet
+
+volumes:
+  dbdata:
+    name: ${DB_CONTAINER:-devnet-db}-data
