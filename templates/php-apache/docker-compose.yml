@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+        DOCROOT: ${DOCROOT:-/var/www/html/public}
+    container_name: ${APP_NAME:-phpapp}-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      # dibaca kode PHP native lewat getenv()
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-devdb}
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-root}
+      # dibaca CodeIgniter 4
+      database.default.hostname: db
+      database.default.port: 3306
+      database.default.database: ${DB_NAME:-devdb}
+      database.default.username: ${DB_USER:-root}
+      database.default.password: ${DB_PASS:-root}
+      database.default.DBDriver: MySQLi
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    external: true
+    name: devnet
