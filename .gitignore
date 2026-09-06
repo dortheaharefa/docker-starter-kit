@@ -1,0 +1,20 @@
+# konfigurasi lokal, jangan ikut ke repository
+.env
+**/.env
+
+# data & hasil import
+database/initdb/*.sql
+**/dbdata/
+
+# dependency
+vendor/
+node_modules/
+__pycache__/
+*.pyc
+
+# file OS & editor
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
